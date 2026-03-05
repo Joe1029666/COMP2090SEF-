@@ -1,0 +1,112 @@
+"""
+Graph Data Structure - Adjacency List Implementation
+Applied to Library Book Relationship Network
+"""
+
+class Graph:
+    """Graph Class - Adjacency List Implementation"""
+    
+    def __init__(self):
+        self.vertices = {}  # {vertex: [(neighbor, weight), ...]}
+    
+    def add_vertex(self, vertex):
+        """Add a vertex to the graph"""
+        if vertex not in self.vertices:
+            self.vertices[vertex] = []
+    
+    def add_edge(self, v1, v2, weight=1):
+        """Add an undirected edge between two vertices"""
+        # Ensure vertices exist
+        if v1 not in self.vertices:
+            self.add_vertex(v1)
+        if v2 not in self.vertices:
+            self.add_vertex(v2)
+        
+        # Undirected graph, add bidirectional edges
+        self.vertices[v1].append((v2, weight))
+        self.vertices[v2].append((v1, weight))
+    
+    def get_neighbors(self, vertex):
+        """Get all neighbors of a vertex"""
+        return self.vertices.get(vertex, [])
+
+
+class LibraryBookGraph(Graph):
+    """Library Book Relationship Graph (Inherits from Graph)"""
+    
+    def __init__(self):
+        super().__init__()
+        self.book_info = {}  # Store book details
+        self.borrow_count = {}  # Record co-borrowing frequency
+    
+    def add_book(self, book_id, title, author):
+        """Add a book to the graph"""
+        self.add_vertex(book_id)
+        self.book_info[book_id] = {'title': title, 'author': author}
+    
+    def record_borrow_pair(self, book1, book2):
+        """
+        Record that two books were borrowed by the same user
+        This increases the relationship weight between them
+        """
+        if book1 == book2:
+            return
+        
+        # Ensure both books exist
+        if book1 not in self.vertices:
+            self.add_vertex(book1)
+        if book2 not in self.vertices:
+            self.add_vertex(book2)
+        
+        # Create ordered pair as key
+        pair = tuple(sorted([book1, book2]))
+        self.borrow_count[pair] = self.borrow_count.get(pair, 0) + 1
+        
+        # Update edge weight
+        weight = self.borrow_count[pair]
+        
+        # Remove old edges if they exist
+        self.vertices[book1] = [(n, w) for n, w in self.vertices[book1] if n != book2]
+        self.vertices[book2] = [(n, w) for n, w in self.vertices[book2] if n != book1]
+        
+        # Add new edges with updated weight
+        self.vertices[book1].append((book2, weight))
+        self.vertices[book2].append((book1, weight))
+    
+    def get_book_title(self, book_id):
+        """Get book title by ID"""
+        return self.book_info.get(book_id, {}).get('title', 'Unknown')
+    
+    def get_book_author(self, book_id):
+        """Get book author by ID"""
+        return self.book_info.get(book_id, {}).get('author', 'Unknown')
+
+
+# Simple test
+if __name__ == "__main__":
+    print("=" * 50)
+    print("Testing Library Book Graph")
+    print("=" * 50)
+    
+    # Create graph
+    g = LibraryBookGraph()
+    
+    # Add books
+    g.add_book("B001", "Python Programming", "Eric Matthes")
+    g.add_book("B002", "Grokking Algorithms", "Aditya Bhargava")
+    g.add_book("B003", "Design Patterns", "Erich Gamma")
+    
+    # Record borrowing relationships
+    print("\nRecording borrowing relationships...")
+    g.record_borrow_pair("B001", "B002")
+    g.record_borrow_pair("B001", "B002")  # Second time, weight becomes 2
+    g.record_borrow_pair("B002", "B003")
+    
+    # Display graph structure
+    print("\nBook Relationship Graph:")
+    for vertex, neighbors in g.vertices.items():
+        title = g.get_book_title(vertex)
+        print(f"  {title} ({vertex}):")
+        for neighbor, weight in neighbors:
+            neighbor_title = g.get_book_title(neighbor)
+            print(f"    └→ {neighbor_title} ({neighbor}), weight={weight}")

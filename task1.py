@@ -1,0 +1,141 @@
+class Book:
+    def __init__(self, name, type, author):
+        self.name = name
+        self.type = type 
+        self.author = author
+        self.borrowed = False
+    
+    def get_name(self):
+        return self.name
+  
+    def get_type(self):
+        return self.type
+  
+    def get_author(self):
+        return self.author
+    
+    def borrow_book(self):
+        if self.borrowed:
+            return False
+        else:
+            self.borrowed = True
+            return True
+    
+    def return_book(self):
+        if self.borrowed:
+            self.borrowed = False
+            return True
+        else:
+            return False
+    
+    def is_available(self):
+        return not self.borrowed
+    
+
+
+
+
+class Member:
+    MAX_BOOKS = 3
+
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+        self._borrowed_books = BookList()
+
+    def get_name(self):
+        return self.name
+
+    def get_age(self):
+        return self.age
+    
+    def borrow_book(self, book):
+        if len(self._borrowed_books) >= self.MAX_BOOKS:
+            print(f"你已借滿{self.MAX_BOOKS}本書, 無法再借!")
+            return False
+        if self._borrowed_books.contains(book):
+            print(f"你已經借了《{book.get_name()}》,無法重覆租借!")
+            return False
+    
+        if book.borrow_book():
+            self._borrowed_books.add_book(book)
+            print(f"成功借出《{book.get_name()}》")
+            return True
+        else:
+            print (f"《{book.get_name()}》目前無法借出")
+            return False
+    
+    def return_book(self, book):
+        if self._borrowed_books.contains(book):
+            if book.return_book():  
+                self._borrowed_books.remove_book(book)
+                print(f"{self.name} 成功歸還《{book.get_name()}》")
+                return True
+        else:
+            print(f"你沒有借《{book.get_name()}》")
+        return False
+
+    # 列出目前借閱的書籍
+    def list_borrowed_books(self):
+        if self._borrowed_books.is_empty():
+            print("目前沒有借書")
+        else:
+            print("已借入以下書籍：")
+            for book in self._borrowed_books:      #__iter__
+                print(f"  - 《{book.get_name()}》 (作者：{book.get_author()})")
+
+
+    def get_borrowed_count(self):
+        return len(self._borrowed_books)
+
+
+
+class BookList:
+    #ADT
+
+    def __init__(self):
+        self._books = []          
+
+    
+    def add_book(self, book):
+        if book not in self._books:
+            self._books.append(book)
+            return True
+        return False
+
+   
+    def remove_book(self, book):
+        if book in self._books:
+            self._books.remove(book)
+            return True
+        return False
+
+    
+    def contains(self, book):
+        return book in self._books
+
+    #書的數量
+    def size(self):
+        return len(self._books)
+
+    
+    def is_empty(self):
+        return len(self._books) == 0
+
+
+    def find_by_name(self, name):
+        for book in self._books:
+            if book.get_name() == name:
+                return book
+        return None
+
+    def get_all(self):
+        return self._books.copy()
+
+    #ADT迭代
+    def __iter__(self):
+        return iter(self._books)
+
+
+    def __len__(self):
+        return len(self._books)

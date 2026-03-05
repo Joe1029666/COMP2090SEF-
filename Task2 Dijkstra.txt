@@ -1,0 +1,289 @@
+"""
+Dijkstra's Shortest Path Algorithm
+Applied to Book Recommendation System
+"""
+
+import heapq
+
+
+class Graph:
+    """Graph Class - Adjacency List Implementation (for standalone running)"""
+    
+    def __init__(self):
+        self.vertices = {}
+    
+    def add_vertex(self, vertex):
+        if vertex not in self.vertices:
+            self.vertices[vertex] = []
+    
+    def add_edge(self, v1, v2, weight=1):
+        if v1 not in self.vertices:
+            self.add_vertex(v1)
+        if v2 not in self.vertices:
+            self.add_vertex(v2)
+        
+        self.vertices[v1].append((v2, weight))
+        self.vertices[v2].append((v1, weight))
+    
+    def get_neighbors(self, vertex):
+        return self.vertices.get(vertex, [])
+
+
+class LibraryBookGraph(Graph):
+    """Library Book Relationship Graph"""
+    
+    def __init__(self):
+        super().__init__()
+        self.book_info = {}
+        self.borrow_count = {}
+    
+    def add_book(self, book_id, title, author):
+        self.add_vertex(book_id)
+        self.book_info[book_id] = {'title': title, 'author': author}
+    
+    def record_borrow_pair(self, book1, book2):
+        if book1 == book2:
+            return
+        
+        pair = tuple(sorted([book1, book2]))
+        self.borrow_count[pair] = self.borrow_count.get(pair, 0) + 1
+        weight = self.borrow_count[pair]
+        
+        # Remove old edges
+        if book1 in self.vertices:
+            self.vertices[book1] = [(n, w) for n, w in self.vertices[book1] if n != book2]
+        if book2 in self.vertices:
+            self.vertices[book2] = [(n, w) for n, w in self.vertices[book2] if n != book1]
+        
+        # Add new edges
+        self.add_edge(book1, book2, weight)
+    
+    def get_book_title(self, book_id):
+        return self.book_info.get(book_id, {}).get('title', 'Unknown')
+    
+    def get_book_author(self, book_id):
+        return self.book_info.get(book_id, {}).get('author', 'Unknown')
+
+
+def dijkstra(graph, start):
+    """
+    Dijkstra's Algorithm: Find shortest paths from start to all vertices
+    Parameters:
+        graph: Graph object
+        start: Starting vertex
+    Returns:
+        distances: Dictionary of shortest distances
+        previous: Dictionary of previous vertices for path reconstruction
+    """
+    # Initialize
+    distances = {}
+    previous = {}
+    
+    # Set all vertices to infinity distance
+    for vertex in graph.vertices:
+        distances[vertex] = float('inf')
+        previous[vertex] = None
+    
+    # Check if start vertex exists
+    if start not in distances:
+        print(f"Error: Start vertex {start} not in graph")
+        return {}, {}
+    
+    # Distance to start is 0
+    distances[start] = 0
+    
+    # Priority queue (distance, vertex)
+    pq = [(0, start)]
+    visited = set()
+    
+    while pq:
+        current_dist, current = heapq.heappop(pq)
+        
+        if current in visited:
+            continue
+        
+        visited.add(current)
+        
+        # Iterate through all neighbors
+        for neighbor, weight in graph.get_neighbors(current):
+            new_dist = current_dist + weight
+            
+            if new_dist < distances[neighbor]:
+                distances[neighbor] = new_dist
+                previous[neighbor] = current
+                heapq.heappush(pq, (new_dist, neighbor))
+    
+    return distances, previous
+
+
+def get_path(previous, target):
+    """Reconstruct path from previous dictionary"""
+    path = []
+    current = target
+    
+    while current is not None:
+        path.append(current)
+        current = previous.get(current)
+    
+    return list(reversed(path))
+
+
+class BookRecommender:
+    """Book Recommendation Engine using Dijkstra's Algorithm"""
+    
+    def __init__(self, book_graph):
+        self.graph = book_graph
+    
+    def recommend(self, book_id, top_n=3):
+        """
+        Recommend books related to the given book
+        Returns list of (book_id, title, strength, distance)
+        """
+        if book_id not in self.graph.vertices:
+            print(f"Error: Book {book_id} does not exist")
+            return []
+        
+        # Calculate shortest paths
+        distances, _ = dijkstra(self.graph, book_id)
+        
+        if not distances:
+            return []
+        
+        # Filter out self and unreachable books
+        recommendations = []
+        for other_id, dist in distances.items():
+            if other_id != book_id and dist != float('inf'):
+                # Relationship strength = 1/distance (smaller distance = stronger)
+                strength = 1 / dist if dist > 0 else 0
+                title = self.graph.get_book_title(other_id)
+                recommendations.append((other_id, title, strength, dist))
+        
+        # Sort by distance (ascending)
+        recommendations.sort(key=lambda x: x[3])
+        
+        return recommendations[:top_n]
+    
+    def recommend_with_path(self, book_id, top_n=3):
+        """
+        Recommend books and show the path
+        Returns list of (book_id, title, strength, distance, path)
+        """
+        if book_id not in self.graph.vertices:
+            print(f"Error: Book {book_id} does not exist")
+            return []
+        
+        # Calculate shortest paths
+        distances, previous = dijkstra(self.graph, book_id)
+        
+        if not distances:
+            return []
+        
+        # Collect recommendations
+        recommendations = []
+        for other_id, dist in distances.items():
+            if other_id != book_id and dist != float('inf'):
+                strength = 1 / dist
+                title = self.graph.get_book_title(other_id)
+                path = get_path(previous, other_id)
+                path_titles = [self.graph.get_book_title(pid) for pid in path]
+                recommendations.append((other_id, title, strength, dist, path_titles))
+        
+        # Sort by distance
+        recommendations.sort(key=lambda x: x[3])
+        
+        return recommendations[:top_n]
+    
+    def print_recommendations(self, book_id, top_n=3):
+        """Print recommendations in a formatted way"""
+        if book_id not in self.graph.book_info:
+            print(f"Error: Book {book_id} does not exist")
+            return
+        
+        target_book = self.graph.book_info[book_id]
+        print("\n" + "=" * 60)
+        print(f"📖 Recommendations based on '{target_book['title']}'")
+        print("=" * 60)
+        print(f"   Author: {target_book['author']}")
+        print("-" * 60)
+        
+        recommendations = self.recommend_with_path(book_id, top_n)
+        
+        if not recommendations:
+            print("   No recommendations found")
+            return
+        
+        for i, (bid, title, strength, dist, path) in enumerate(recommendations, 1):
+            print(f"\n{i}. 📘 {title}")
+            print(f"   Book ID: {bid}")
+            print(f"   Author: {self.graph.get_book_author(bid)}")
+            print(f"   Strength: {strength:.3f} (Distance: {dist})")
+            print(f"   Path: {' → '.join(path)}")
+        
+        print("\n" + "=" * 60)
+
+
+# Test code
+if __name__ == "__main__":
+    print("=" * 60)
+    print("Dijkstra's Algorithm Test - Book Recommendation System")
+    print("=" * 60)
+    
+    # Create book relationship graph
+    g = LibraryBookGraph()
+    
+    # Add books
+    books = [
+        ("B001", "Python Programming", "Eric Matthes"),
+        ("B002", "Grokking Algorithms", "Aditya Bhargava"),
+        ("B003", "Design Patterns", "Erich Gamma"),
+        ("B004", "Refactoring", "Martin Fowler"),
+        ("B005", "Clean Code", "Robert Martin"),
+        ("B006", "The Pragmatic Programmer", "David Thomas"),
+        ("B007", "Introduction to Algorithms", "Thomas Cormen")
+    ]
+    
+    for book_id, title, author in books:
+        g.add_book(book_id, title, author)
+    
+    # Build relationships
+    print("\n📌 Building book borrowing relationship network...")
+    
+    # Strong relationship (borrowed together 3 times)
+    g.record_borrow_pair("B001", "B002")
+    g.record_borrow_pair("B001", "B002")
+    g.record_borrow_pair("B001", "B002")  # Weight = 3
+    
+    g.record_borrow_pair("B001", "B003")
+    g.record_borrow_pair("B001", "B003")  # Weight = 2
+    
+    g.record_borrow_pair("B002", "B003")
+    g.record_borrow_pair("B002", "B003")  # Weight = 2
+    
+    g.record_borrow_pair("B003", "B004")  # Weight = 1
+    
+    g.record_borrow_pair("B004", "B005")
+    g.record_borrow_pair("B004", "B005")  # Weight = 2
+    
+    g.record_borrow_pair("B005", "B006")  # Weight = 1
+    
+    g.record_borrow_pair("B003", "B007")  # Weight = 1
+    g.record_borrow_pair("B002", "B007")  # Weight = 1
+    
+    # Display graph structure
+    print("\n📊 Book Relationship Graph:")
+    for vertex, neighbors in g.vertices.items():
+        print(f"  {g.get_book_title(vertex)} ({vertex}):")
+        for neighbor, weight in neighbors:
+            neighbor_title = g.get_book_title(neighbor)
+            print(f"    └→ {neighbor_title} ({neighbor}), weight={weight}")
+    
+    # Test recommender
+    recommender = BookRecommender(g)
+    
+    # Test with Python Programming
+    recommender.print_recommendations("B001", top_n=5)
+    
+    # Test with Design Patterns
+    recommender.print_recommendations("B003", top_n=5)
+    
+    print("\n✅ Test completed successfully")

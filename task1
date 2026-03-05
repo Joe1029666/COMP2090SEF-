@@ -1,1 +1,25 @@
+class Book:
+    def __init__(self, name, type, author):
+        self.name = name
+        self.type = type 
+        self.author = author
+    
+    def get_name(self):
+        return self.name
+  
+    def get_type(self):
+        return self.type
+  
+    def get_author(self):
+        return self.author
 
+class Member:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def get_name(self):
+        return self.name
+
+    def get_age(self):
+        self.age = age

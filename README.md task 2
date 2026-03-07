@@ -1,0 +1,31 @@
+# Task2: Self-study of New Data Structure & Algorithm
+**Pre-submission Version** | 2026-03-08
+**Course**：COMP2090SEF/8090SEF/S209W Data Structures, Algorithms and Problem Solving
+**Parent Repository**：[https://github.com/Joe1029666/COMP2090SEF-.git]
+**Scenario Adaptation**：Library Management System （Task1 core project)
+
+## 📚 Self-studied Content (Not Covered in Course)
+### New Data Structure：Graph- Adjacency List Implementation
+- **Type**：Undirected/Directed Graph (support weighted edges)
+- **Library Application**：Store **user-book borrowing relationships** (undirected) and **book-book association relationships** (directed) based on borrowing behavior.
+### New Algorithm：Dijkstra's Algorithm
+- **Core Function**：Find the shortest path from a start node to all other nodes in a weighted graph
+- **Library Application**：**Book association recommendation** (the shorter the path, the higher the relevance of the book)
+
+## 🚀 Core Implementation Files
+| File Name               | Core Function | Library Scenario Adaptation |
+|-------------------------|---------------|-----------------------------|
+| `graph_ds.py`            | Graph ADT (adjacency list) with all core operations | Nodes = User ID/Book ID, Edges = Borrow relationship/association, Weights = Borrow times/relevance |
+| `dijkstra_algo.py`       | Dijkstra's algorithm core + scenario function | Implements `book_recommendation()` for library, supports top N relevant book recommendation |
+
+## 🛠 Run the Code
+### Environment
+Python  (**no third-party libraries required**, pure Python implementation)
+### Run Command
+```bash
+# Enter Task2 folder
+cd Task2_SelfStudy
+# 1. Test Graph data structure (library borrow/association graph)
+python graph_ds.py
+# 2. Test Dijkstra's algorithm (library book recommendation)
+python dijkstra_algo.py

@@ -1,0 +1,24 @@
+User Guide（运行说明）
+Library Book Graph – User Guide
+How to Run the Program
+Make sure you have Python 3 installed on your computer.
+Download the Python file library_book_graph.py.
+Open a terminal or command prompt in the same folder.
+Run the program using:
+python library_book_graph.py
+The output will show:
+Each book with its ID and title
+Connected books and co-borrow weight
+Program Features
+Add books with ID, title, author
+Record co-borrowed book pairs
+Automatically update relationship strength (weight)
+Display the full book relationship network
+Test Case Explanation
+The test includes three books:
+B001: Python Programming
+B002: Grokking Algorithms
+B003: Design Patterns
+It records:
+B001 ↔ B002 (two times, weight = 2)
+B002 ↔ B003 (one time, weight = 1)

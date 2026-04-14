@@ -29,12 +29,12 @@ A robust, modular Library Management System built with Object-Oriented Programmi
 
   `main.py`: The system's entry point (main program), used to execute demonstration and testing logic.
   ## 📁 Project Structure
-  ```python
+  
   .
   ├── main.py          # Entry point of the application
   ├── book.py          # Book class with Encapsulation
   ├── member.py        # Member class with borrowing logic
-  └── book_list.py     # ADT for managing book collections
+  └── book_list.py     # ADT for managing book collections'
 
 3. Running Steps
 

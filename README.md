@@ -2,32 +2,31 @@
 A robust, modular Library Management System built with Object-Oriented Programming (OOP) principles in Python.
 
 🌟 Key Features
-  Encapsulation: Secured data using private attributes and @property decorators.
+  *Encapsulation: Secured data using private attributes and @property decorators.
 
+  *Modular Design: Clean separation of concerns with 4 distinct modules.
 
-  Modular Design: Clean separation of concerns with 4 distinct modules.
+  *Data Validation: Automatic age verification and borrowing limit enforcement.
 
-  Data Validation: Automatic age verification and borrowing limit enforcement.
-
-  Custom ADT: A specialized BookList to handle complex collection operations.
+  *Custom ADT: A specialized BookList to handle complex collection operations.
 
 1. System Environment Requirements:
 
-  Operating System: Windows, macOS, or Linux.
+  *Operating System: Windows, macOS, or Linux.
 
-  Python Version: Python 3.6 or later is recommended.
+  *Python Version: Python 3.6 or later is recommended.
 
-  Dependencies: This project only uses the Python standard library; no additional third-party packages are required.
+  *Dependencies: This project only uses the Python standard library; no additional third-party packages are required.
 
 2. File Structure: Please ensure the following four .py files are stored in the same folder for correct module import:
 
-  `book.py`: Defines the `Book` category and its attributes (e.g., book title, author, borrowing status).
+  *`book.py`: Defines the `Book` category and its attributes (e.g., book title, author, borrowing status).
 
-  `book_list.py`: Defines the `BookList` abstract data type (ADT), responsible for managing the book collection.
+  *`book_list.py`: Defines the `BookList` abstract data type (ADT), responsible for managing the book collection.
 
-  `member.py`: Defines the `Member` category, handling borrowing and returning logic and member information verification.
+  *`member.py`: Defines the `Member` category, handling borrowing and returning logic and member information verification.
 
-  `main.py`: The system's entry point (main program), used to execute demonstration and testing logic.
+  *`main.py`: The system's entry point (main program), used to execute demonstration and testing logic.
   ## 📁 Project Structure
   
   .
@@ -40,11 +39,11 @@ A robust, modular Library Management System built with Object-Oriented Programmi
 
   Follow these steps to start and test the program:
 
-    Open a terminal: Open a terminal or command prompt on your computer.
+    1.Open a terminal: Open a terminal or command prompt on your computer.
 
-    Change directory: Use the `cd` command to switch to the folder containing the files mentioned above.
+    2.Change directory: Use the `cd` command to switch to the folder containing the files mentioned above.
 
-    Executable program
+    3.Executable program
 
 
 # Task2: Self-study of New Data Structure & Algorithm
